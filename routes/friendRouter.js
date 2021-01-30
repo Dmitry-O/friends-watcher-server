@@ -7,6 +7,8 @@ const cors = require('./cors');
 const Friends = require('../models/friends');
 const { populate } = require('../models/friends');
 
+const Requests = require('../models/requests');
+
 const friendRouter = express.Router();
 
 friendRouter.use(bodyParser.json());
@@ -110,38 +112,78 @@ friendRouter.route('/:friendId')
     .catch((err) => next(err));
 })
 .post(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
-    Friends.findOne({user: req.user._id})
-    .then((friend) => {
-        if (friend) {            
-            if (friend.friends.indexOf(req.params.friendId) === -1) {
-                friend.friends.push(req.params.friendId)
-                friend.save()
-                .then((friend) => {
-                    Friends.findById(friend._id)
-                    .populate('user')
-                    .populate('friends')
+    Requests.findOne({user: req.user._id})
+    .then((request) => {
+        if (request && request.requests.indexOf(req.params.friendId >= 0)) {
+            Friends.findOne({user: req.user._id})
+            .then((friend) => {
+                if (friend) {            
+                    if (friend.friends.indexOf(req.params.friendId) === -1) {
+                        friend.friends.push(req.params.friendId)
+                        friend.save()
+                        .then((friend) => {
+                            Friends.findById(friend._id)
+                            .populate('user')
+                            .populate('friends')
+                            .then((friend) => {
+                                console.log('Friend created: ', friend);
+                                res.statusCode = 200;
+                                res.setHeader('Content-Type', 'application/json');
+                                res.json(friend);
+                            })
+                        }, (err) => next(err))
+                    }
+                }
+                else {
+                    Friends.create({"user": req.user._id, "friends": [req.params.friendId]})
                     .then((friend) => {
-                        console.log('Friend created: ', friend);
-                        res.statusCode = 200;
-                        res.setHeader('Content-Type', 'application/json');
-                        res.json(friend);
-                    })
-                }, (err) => next(err))
-            }
+                        Friends.findById(friend._id)
+                        .populate('user')
+                        .populate('friends')
+                        .then((friend) => {
+                            console.log('Friend created: ', friend);
+                            res.statusCode = 200;
+                            res.setHeader('Content-Type', 'application/json');
+                            res.json(friend);
+                        })
+                    }, (err) => next(err))
+                }
+                
+            }, (err) => next(err))
+            .catch((err) => next(err));
+
+            Friends.findOne({user: req.params.friendId})
+            .then((friend) => {
+                if (friend) {            
+                    if (friend.friends.indexOf(req.user._id) === -1) {
+                        friend.friends.push(req.user._id)
+                        friend.save()
+                        .then((friend) => {
+                            Friends.findById(friend._id)
+                            .populate('user')
+                            .populate('friends')
+                        }, (err) => next(err))
+                    }
+                }
+                else {
+                    Friends.create({"user": req.params.friendId, "friends": [req.user._id]})
+                    .then((friend) => {
+                        Friends.findById(friend._id)
+                        .populate('user')
+                        .populate('friends')
+                    }, (err) => next(err))
+                }
+                
+            }, (err) => next(err))
+            .catch((err) => next(err));
+
+            request.requests.splice(req.params.friendId, 1);
+            request.save();
         }
         else {
-            Friends.create({"user": req.user._id, "friends": [req.params.friendId]})
-            .then((friend) => {
-                Friends.findById(friend._id)
-                .populate('user')
-                .populate('friends')
-                .then((friend) => {
-                    console.log('Favorite created: ', friend);
-                    res.statusCode = 200;
-                    res.setHeader('Content-Type', 'application/json');
-                    res.json(friend);
-                })
-            }, (err) => next(err))
+            err = new Error('Request ' + req.params.friendId + ' not found');
+            err.status = 404;
+            return next(err); 
         }
     }, (err) => next(err))
     .catch((err) => next(err));
@@ -155,14 +197,14 @@ friendRouter.route('/:friendId')
     .then((friend) => {
         if (friend) {            
             if (friend.friends.indexOf(req.params.friendId) >= 0) {
-                friend.friends.splice(index, 1);
+                friend.friends.splice(req.params.friendId, 1);
                 friend.save()
                 .then((friend) => {
                     Friends.findById(friend._id)
                     .populate('user')
                     .populate('friends')
                     .then((friend) => {
-                        console.log('Friend created: ', friend);
+                        console.log('Friend deleted: ', friend);
                         res.statusCode = 200;
                         res.setHeader('Content-Type', 'application/json');
                         res.json(friend);
@@ -171,6 +213,32 @@ friendRouter.route('/:friendId')
             }
             else {
                 err = new Error('Friend ' + req.params.friendId + ' not found');
+                err.status = 404;
+                return next(err);
+            }
+        }
+        else {
+            err = new Error('Friends not found');
+            err.status = 404;
+            return next(err);
+        }
+    }, (err) => next(err))
+    .catch((err) => next(err));
+
+    Friends.findOne({user: req.params.friendId})
+    .then((friend) => {
+        if (friend) {            
+            if (friend.friends.indexOf(req.user._id) >= 0) {
+                friend.friends.splice(req.user._id, 1);
+                friend.save()
+                .then((friend) => {
+                    Friends.findById(friend._id)
+                    .populate('user')
+                    .populate('friends')
+                }, (err) => next(err));
+            }
+            else {
+                err = new Error('Friend ' + req.user._id + ' not found');
                 err.status = 404;
                 return next(err);
             }

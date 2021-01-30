@@ -1,15 +1,15 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const friendSchema = new Schema ({
+const requestSchema = new Schema ({
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     },
-    friends: [
+    requests: [
         {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'Request'
+            ref: 'User'
         }
     ]
 },
@@ -18,6 +18,6 @@ const friendSchema = new Schema ({
 }
 );
 
-var Friends = mongoose.model('Friend', friendSchema);
+var Requests = mongoose.model('Request', requestSchema);
 
-module.exports = Friends;
+module.exports = Requests;

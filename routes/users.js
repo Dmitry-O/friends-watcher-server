@@ -22,6 +22,18 @@ router.route('/')
     .catch((err) => next(err));
 });
 
+router.route('/basic')
+.get(cors.corsWithOptions, authenticate.verifyUser, function(req, res, next) {
+  User.find({})
+    .then((users) => {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        console.log(users);
+        res.json(users.map(user => [user.username, user.fullname, user.image]));
+    }, (err) => next(err))
+    .catch((err) => next(err));
+});
+
 router.post('/signup', cors.corsWithOptions, (req, res, next) => {
   User.register(new User({username: req.body.username}), req.body.password, (err, user) => {
     if (err) {

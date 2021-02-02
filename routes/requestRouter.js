@@ -84,12 +84,12 @@ requestRouter.route('/:requestId')
                             Friends.findById(friend._id)
                             .populate('user')
                             .populate('friends')
-                            .then((friend) => {
+                            //.then((friend) => {
                                 console.log('Friend created: ', friend);
                                 res.statusCode = 200;
                                 res.setHeader('Content-Type', 'application/json');
                                 res.json(friend);
-                            })
+                            //})
                         }, (err) => next(err))
                     }
                 }
@@ -99,12 +99,11 @@ requestRouter.route('/:requestId')
                         Friends.findById(friend._id)
                         .populate('user')
                         .populate('friends')
-                        .then((friend) => {
+                        //.then((friend) => {
                             console.log('Friend created: ', friend);
                             res.statusCode = 200;
                             res.setHeader('Content-Type', 'application/json');
                             res.json(friend);
-                        })
                     }, (err) => next(err))
                 }
                 

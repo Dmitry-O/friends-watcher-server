@@ -18,8 +18,9 @@ friendRouter.route('/')
 .get(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
     Friends.findOne({user: req.user._id})
     .populate('user')
-    .populate('friends')
+    .populate('requests')
     .then((friends) => {
+        console.log(friends.friends);
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
         res.json(friends);

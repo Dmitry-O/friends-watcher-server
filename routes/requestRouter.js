@@ -20,6 +20,7 @@ requestRouter.route('/')
     .populate('user')
     .populate('requests')
     .then((requests) => {
+        console.log(requests.requests);
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
         res.json(requests);

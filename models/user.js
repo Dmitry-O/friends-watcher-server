@@ -22,7 +22,7 @@ var User = new Schema({
         type: String,
         default: ''
     },
-    coords: [coordsSchema],
+    coords: coordsSchema,
     timestamp: {
         type: Date,
         required: false

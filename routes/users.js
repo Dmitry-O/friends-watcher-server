@@ -29,7 +29,7 @@ router.route('/basic')
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
         console.log(users);
-        res.json(users.map(user => [{_id: user._id, username: user.username, fullname: user.fullname, image: user.image}]));
+        res.json(users.map(user => ({_id: user._id, username: user.username, fullname: user.fullname, image: user.image})));
     }, (err) => next(err))
     .catch((err) => next(err));
 });

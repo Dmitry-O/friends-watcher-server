@@ -30,7 +30,7 @@ router.route('/coords')
     .then((user) => {
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
-        res.json({latitude: user.coords.latitude, longitude: user.coords.longitude});
+        res.json({latitude: user.coords.latitude, longitude: user.coords.longitude, timestamp: user.timestamp});
     }, (err) => next(err))
     .catch((err) => next(err));
 })
@@ -39,6 +39,7 @@ router.route('/coords')
     .then((user) => {
         user.coords.latitude = req.body.latitude;
         user.coords.longitude = req.body.longitude;
+        user.timestamp = req.body.timestamp;
         user.save();
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');

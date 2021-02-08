@@ -146,6 +146,11 @@ requestRouter.route('/:requestId')
                                 res.json(request);
                             }, (err) => next(err))
                         }
+                        else {
+                            var err = new Error('Current request already exists!');
+                            err.status = 403;
+                            return next(err);
+                        }
                     }
                     else {
                         Requests.create({"user": req.params.requestId, "requests": [req.user._id]})

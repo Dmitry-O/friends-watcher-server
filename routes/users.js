@@ -5,6 +5,8 @@ var passport = require('passport');
 var authenticate = require('../authenticate');
 const cors = require('./cors');
 
+const Friends = require('../models/friends');
+
 var router = express.Router();
 router.use(bodyParser.json());
 
@@ -28,8 +30,41 @@ router.route('/basic')
     .then((users) => {
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
-        console.log(users);
-        res.json(users.map(user => ({_id: user._id, username: user.username, fullname: user.fullname, image: user.image})));
+        var friends = [];
+        Friends.findOne({user: req.user._id})
+        .then((resp) =>
+        res.json(users.map(user => 
+          JSON.stringify(user._id) === JSON.stringify(req.user._id) ? null :
+          {
+            _id: user._id,
+            username: user.username,
+            fullname: user.fullname,
+            image: user.image,
+            friend: resp.friends.indexOf(user._id) !== -1 ? true : false
+          }
+          /*Friends.findOne({user: req.user._id})
+          .then((resp) => {
+            if (resp.friends.indexOf(user._id) !== -1)// {
+              //console.log("friend is. it's id: ", user._id);
+              ({
+                  _id: user._id,
+                  username: user.username,
+                  fullname: user.fullname,
+                  image: user.image,
+                  friend: true
+                })
+              //}
+          }, (err) => next(err))
+          .catch((err) => next(err))
+          //user._id === req.user._id ? null : 
+          ({
+            _id: user._id,
+            username: user.username,
+            fullname: user.fullname,
+            image: user.image,
+            friend: false
+          });*/
+        )));
     }, (err) => next(err))
     .catch((err) => next(err));
 });

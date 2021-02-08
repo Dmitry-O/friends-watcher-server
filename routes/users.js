@@ -24,13 +24,35 @@ router.route('/')
     .catch((err) => next(err));
 });
 
+router.route('/coords')
+.get(cors.corsWithOptions, authenticate.verifyUser, function(req, res, next) {
+  User.findOne({_id: req.user._id})
+    .then((user) => {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json({latitude: user.coords.latitude, longitude: user.coords.longitude});
+    }, (err) => next(err))
+    .catch((err) => next(err));
+})
+.post(cors.corsWithOptions, authenticate.verifyUser, function(req, res, next) {
+  User.findOne({_id: req.user._id})
+    .then((user) => {
+        user.coords.latitude = req.body.latitude;
+        user.coords.longitude = req.body.longitude;
+        user.save();
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(user);
+    }, (err) => next(err))
+    .catch((err) => next(err));
+});
+
 router.route('/basic')
 .get(cors.corsWithOptions, authenticate.verifyUser, function(req, res, next) {
   User.find({})
     .then((users) => {
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
-        var friends = [];
         Friends.findOne({user: req.user._id})
         .then((resp) =>
         res.json(users.map(user => 
@@ -42,28 +64,6 @@ router.route('/basic')
             image: user.image,
             friend: resp.friends.indexOf(user._id) !== -1 ? true : false
           }
-          /*Friends.findOne({user: req.user._id})
-          .then((resp) => {
-            if (resp.friends.indexOf(user._id) !== -1)// {
-              //console.log("friend is. it's id: ", user._id);
-              ({
-                  _id: user._id,
-                  username: user.username,
-                  fullname: user.fullname,
-                  image: user.image,
-                  friend: true
-                })
-              //}
-          }, (err) => next(err))
-          .catch((err) => next(err))
-          //user._id === req.user._id ? null : 
-          ({
-            _id: user._id,
-            username: user.username,
-            fullname: user.fullname,
-            image: user.image,
-            friend: false
-          });*/
         )));
     }, (err) => next(err))
     .catch((err) => next(err));

@@ -63,7 +63,7 @@ router.route('/basic')
             username: user.username,
             fullname: user.fullname,
             image: user.image,
-            friend: resp.friends.indexOf(user._id) !== -1 ? true : false
+            friend: resp ? resp.friends.indexOf(user._id) !== -1 ? true : false : false
           }
         )));
     }, (err) => next(err))

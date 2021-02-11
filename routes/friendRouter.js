@@ -20,7 +20,7 @@ friendRouter.route('/')
     .populate('user')
     .populate('friends')
     .then((friends) => {
-        console.log(friends.friends);
+        //console.log(friends.friends);
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
         res.json(friends);
